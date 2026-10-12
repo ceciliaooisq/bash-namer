@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bash Namer</title>
+<style>
+:root{--bg:#faf7f3;--card:#fff;--ink:#2a2420;--mut:#8a7f76;--line:#e8e0d6;--acc:#3b2f28;--chip:#f1ebe3;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1b1815;--card:#252019;--ink:#f1ebe3;--mut:#a1958a;--line:#3a322b;--acc:#e9dccb;--chip:#31291f}}
+:root[data-theme="dark"]{--bg:#1b1815;--card:#252019;--ink:#f1ebe3;--mut:#a1958a;--line:#3a322b;--acc:#e9dccb;--chip:#31291f}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 "Helvetica Neue",Arial,sans-serif}
+.w{max-width:960px;margin:0 auto;padding:28px 18px 80px}
+h1{font:400 34px/1.1 Georgia,"Times New Roman",serif;letter-spacing:.04em;margin:0}
+.sub{color:var(--mut);margin:6px 0 22px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:18px}
+label{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);display:block;margin-bottom:4px}
+input[type=text],select{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font:inherit}
+.row{display:grid;grid-template-columns:2fr 1fr;gap:12px}
+@media(max-width:600px){.row{grid-template-columns:1fr}}
+.drop{margin-top:14px;border:1.5px dashed var(--line);border-radius:12px;padding:26px;text-align:center;color:var(--mut);cursor:pointer}
+.drop.on{border-color:var(--acc)}
+button{font:inherit;border:1px solid var(--acc);background:var(--acc);color:var(--bg);padding:9px 16px;border-radius:999px;cursor:pointer}
+button.g{background:transparent;color:var(--ink);border-color:var(--line)}
+button:disabled{opacity:.5;cursor:wait}
+.bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:14px}
+.chk{display:flex;gap:6px;align-items:center;font-size:14px;color:var(--mut)}
+.item{display:grid;grid-template-columns:150px 1fr;gap:16px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:14px}
+@media(max-width:600px){.item{grid-template-columns:96px 1fr}}
+.item img{width:100%;border-radius:8px;object-fit:cover;aspect-ratio:3/4;background:var(--chip)}
+.fin{font:400 20px/1.3 Georgia,serif;margin:10px 0 2px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.chip{background:var(--chip);border:0;color:var(--ink);padding:5px 11px;font-size:13px;border-radius:999px}
+.tag{font-size:12px;color:var(--mut)}
+.err{color:#b3402f;font-size:13px;margin-top:6px}
+.ctr{display:grid;grid-template-columns:1fr 150px;gap:10px;margin-top:8px}
+@media(max-width:600px){.ctr{grid-template-columns:1fr}}
+</style></head><body><div class="w">
+<h1>BASH NAMER</h1>
+<p class="sub">Drop in this week's product photos. Get names that sound like Bash.</p>
+<div class="panel"><label>Anthropic API key (saved only in this browser)</label><input type="password" id="key" placeholder="sk-ant-..." autocomplete="off" style="margin-bottom:14px">
+ <div class="row">
+  <div><label>Collection / vibe this week</label><input type="text" id="vibe" placeholder="e.g. soft autumn neutrals, quiet luxury, café-hopping"></div>
+  <div><label>Name style</label><select id="style"><option value="mix">Mix of both</option><option value="invented">Invented name (Zolini, Kova)</option><option value="phrase">Evocative phrase (With Faith)</option></select></div>
+ </div>
+ <div class="drop" id="drop">Tap or drag product photos here<input type="file" id="file" accept="image/*" multiple hidden></div>
+ <div class="bar">
+  <button id="all" class="g" hidden>Generate all</button>
+  <button id="copyall" class="g" hidden>Copy all names</button>
+  <label class="chk" style="margin:0;text-transform:none;letter-spacing:0"><input type="checkbox" id="newp"> add “NEW:” prefix</label>
+  <span class="tag" id="status"></span>
+ </div>
+</div>
+<div id="list"></div>
+</div>
+<script>
+const EXISTING="Celeste, Cam, Jeanna, Lucy, Zolini, Claire, Kova, Feraya, Sorissa, Olia, Killy, Lioris, Everlia, Calista, Thaleessa, Phaelis, Baby Feraya";
+const REF=["Celeste Set by Bash","Cam Faux 2 Layer Mesh Lace Camisole Top","Jeanna V Neck Mid Sleeve Top","Zolini Lace Camisole Top","Kova Queen Anne Neckline Long Sleeve Top","Feraya Off Shoulder Bodycon Maxi Dress","Olia Peplum Pleated Top","Killy Mini Skort","Lioris Boat Neck Tie Top","With Faith Satin Skirt","Everlia Ruched Maxi Skirt","Love Escape Crossback Textured Maxi Dress","Island Resort Collar Button Down Linen Top","Phaelis Tube Layered Maxi Dress","Calista Polkadot Midi Skirt"];
+let items=[],sample=null,used=[];
+try{used=JSON.parse(localStorage.getItem("bn_used")||"[]")}catch(e){}
+const $=s=>document.querySelector(s);
+function esc(s){const d=document.createElement("div");d.textContent=s;return d.innerHTML}
+function final(it){const b=(it.base||"").trim();if(!b)return"";const c=(it.colour||"").trim();return($("#newp").checked?"NEW: ":"")+b+(c?" in "+c:"")}
+function toBlob(file){return new Promise((res,rej)=>{const im=new Image(),u=URL.createObjectURL(file);im.onload=()=>{const m=800,s=Math.min(1,m/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=im.width*s;c.height=im.height*s;c.getContext("2d").drawImage(im,0,0,c.width,c.height);c.toBlob(b=>res({blob:b,url:c.toDataURL("image/jpeg",.6)}),"image/jpeg",.85);URL.revokeObjectURL(u)};im.onerror=rej;im.src=u})}
+async function addFiles(fs){for(const f of fs){if(!f.type.startsWith("image/"))continue;try{const r=await toBlob(f);items.push({id:Math.random().toString(36).slice(2),blob:r.blob,url:r.url,pool:[],i:0,base:"",colour:"",busy:false,err:""})}catch(e){}}render()}
+async function gen(it,more){
+ it.busy=true;it.err="";render();
+ const style={mix:"a mix: some invented feminine names, some evocative short phrases",invented:"an invented, soft, feminine, pronounceable one-word name (like Zolini, Kova, Feraya, Lioris, Everlia)",phrase:"a short evocative phrase of 2 words (like With Faith, Love Escape, Island Resort)"}[$("#style").value];
+ const avoid=[...it.pool,...used].slice(-60).join(", ");
+ const p=`You name women's fashion products for Bash, a Malaysian online fashion brand. Look at the photo and return ONLY JSON, no markdown:
+{"colour":"simple colour name as Bash writes it, e.g. Cream, Khaki, Pink, Blue Stripes, Teal Green","options":[8 strings]}
+Each option = a brand name + short technical description + garment type, WITHOUT the colour. Pattern: [Name] [1-3 technical terms] [Garment type].
+Reference listings from Bash: ${REF.join(" | ")}.
+Brand-name style: ${style}. Chic, classy, a little unexpected, never cheesy or generic. Vibe should match the clothes.
+Technical terms must be accurate to the photo (e.g. ruffle, A-line, midi, pleated, ribbed, button down, drawstring, eyelet, ruched, puff sleeve, wide leg, high neck, cropped, lace trim). Max 1-3 terms, keep total under 7 words. If it's a two-piece, end with "Set".
+Week's collection/vibe: ${$("#vibe").value||"not specified, judge from the photo"}.
+Never reuse these existing or already used names: ${EXISTING}, ${avoid}. All 8 brand names must differ from each other.`;
+ try{
+  const key=($("#key").value||"").trim();
+  if(!key){it.busy=false;it.err="Paste your Anthropic API key at the top first.";render();return}
+  const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"content-type":"application/json","x-api-key":key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-5-5",max_tokens:1000,messages:[{role:"user",content:[{type:"image",source:{type:"base64",media_type:"image/jpeg",data:it.url.split(",")[1]}},{type:"text",text:p}]}]})});
+  const dj=await res.json();if(!res.ok)throw new Error((dj.error&&dj.error.message)||"API error");
+  const r={text:dj.content.map(c=>c.text||"").join("")};
+  const m=r.text.match(/\{[\s\S]*\}/);const j=JSON.parse(m[0]);
+  if(!it.colour)it.colour=j.colour||"";
+  const opts=(j.options||[]).filter(x=>typeof x==="string"&&x.trim());
+  if(more){it.pool=it.pool.concat(opts);it.i=it.pool.length-opts.length}else{it.pool=opts;it.i=0}
+  it.base=it.pool[it.i]||"";
+ }catch(e){it.err="Couldn't generate a name: "+(e&&e.message||"try again")}
+ it.busy=false;render()}
+function shuffle(it){if(it.i+1<it.pool.length){it.i++;it.base=it.pool[it.i];render()}else gen(it,true)}
+function copy(t,btn){try{navigator.clipboard.writeText(t).then(()=>{if(btn){btn.textContent="Copied";setTimeout(()=>btn.textContent="Copy",1200)}})}catch(e){}
+ const nm=t.replace(/^NEW: /,"").split(" ")[0];if(nm&&!used.includes(nm)){used.push(nm);try{localStorage.setItem("bn_used",JSON.stringify(used.slice(-200)))}catch(e){}}}
+function render(){
+ const L=$("#list");L.innerHTML="";
+ $("#all").hidden=!items.length;$("#copyall").hidden=!items.some(i=>i.base);
+ items.forEach(it=>{
+  const d=document.createElement("div");d.className="item";
+  d.innerHTML=`<img src="${it.url}" alt=""><div><div class="ctr"><div><label>Name</label><input type="text" class="nm" value="${esc(it.base).replace(/"/g,"&quot;")}" placeholder="Not named yet"></div><div><label>Colour</label><input type="text" class="cl" value="${esc(it.colour).replace(/"/g,"&quot;")}"></div></div>
+  <div class="fin">${esc(final(it))||"&nbsp;"}</div>
+  <div class="bar" style="margin-top:10px"><button class="go" ${it.busy?"disabled":""}>${it.busy?"Thinking…":it.base?"Shuffle":"Generate"}</button><button class="g cp" ${it.base?"":"disabled"}>Copy</button><button class="g rm">Remove</button></div>
+  ${it.err?`<div class="err">${esc(it.err)}</div>`:""}
+  <div class="chips"></div></div>`;
+  const ch=d.querySelector(".chips");
+  it.pool.forEach((n,k)=>{if(k===it.i)return;const b=document.createElement("button");b.className="chip";b.textContent=n;b.onclick=()=>{it.i=k;it.base=n;render()};ch.appendChild(b)});
+  const nm=d.querySelector(".nm"),cl=d.querySelector(".cl"),fin=d.querySelector(".fin");
+  nm.oninput=()=>{it.base=nm.value;fin.textContent=final(it)||"\u00a0"};
+  cl.oninput=()=>{it.colour=cl.value;fin.textContent=final(it)||"\u00a0"};
+  d.querySelector(".go").onclick=()=>it.base?shuffle(it):gen(it,false);
+  d.querySelector(".cp").onclick=e=>copy(final(it),e.target);
+  d.querySelector(".rm").onclick=()=>{items=items.filter(x=>x!==it);render()};
+  L.appendChild(d)})}
+$("#newp").onchange=render;
+const drop=$("#drop"),file=$("#file");
+drop.onclick=()=>file.click();file.onchange=()=>{addFiles(file.files);file.value=""};
+drop.ondragover=e=>{e.preventDefault();drop.classList.add("on")};drop.ondragleave=()=>drop.classList.remove("on");
+drop.ondrop=e=>{e.preventDefault();drop.classList.remove("on");addFiles(e.dataTransfer.files)};
+$("#all").onclick=async()=>{const b=$("#all");b.disabled=true;for(const it of items.filter(x=>!x.base)){$("#status").textContent="Naming…";await gen(it,false)}$("#status").textContent="";b.disabled=false};
+$("#copyall").onclick=e=>{const t=items.filter(i=>i.base).map(final).join("\n");copy(t,null);e.target.textContent="Copied";setTimeout(()=>e.target.textContent="Copy all names",1200)};
+const K=$("#key");try{K.value=localStorage.getItem("bn_key")||""}catch(e){}K.oninput=()=>{try{localStorage.setItem("bn_key",K.value.trim())}catch(e){}};
+</script></body></html>
