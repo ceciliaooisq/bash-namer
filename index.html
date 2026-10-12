@@ -1,118 +1,210 @@
-<!DOCTYPE html>
-<html lang="en"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Bash Namer</title>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bash Product Naming Studio</title>
 <style>
-:root{--bg:#faf7f3;--card:#fff;--ink:#2a2420;--mut:#8a7f76;--line:#e8e0d6;--acc:#3b2f28;--chip:#f1ebe3;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1b1815;--card:#252019;--ink:#f1ebe3;--mut:#a1958a;--line:#3a322b;--acc:#e9dccb;--chip:#31291f}}
-:root[data-theme="dark"]{--bg:#1b1815;--card:#252019;--ink:#f1ebe3;--mut:#a1958a;--line:#3a322b;--acc:#e9dccb;--chip:#31291f}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 "Helvetica Neue",Arial,sans-serif}
-.w{max-width:960px;margin:0 auto;padding:28px 18px 80px}
-h1{font:400 34px/1.1 Georgia,"Times New Roman",serif;letter-spacing:.04em;margin:0}
-.sub{color:var(--mut);margin:6px 0 22px}
-.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:18px}
-label{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);display:block;margin-bottom:4px}
-input[type=text],select{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font:inherit}
-.row{display:grid;grid-template-columns:2fr 1fr;gap:12px}
-@media(max-width:600px){.row{grid-template-columns:1fr}}
-.drop{margin-top:14px;border:1.5px dashed var(--line);border-radius:12px;padding:26px;text-align:center;color:var(--mut);cursor:pointer}
-.drop.on{border-color:var(--acc)}
-button{font:inherit;border:1px solid var(--acc);background:var(--acc);color:var(--bg);padding:9px 16px;border-radius:999px;cursor:pointer}
-button.g{background:transparent;color:var(--ink);border-color:var(--line)}
-button:disabled{opacity:.5;cursor:wait}
-.bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:14px}
-.chk{display:flex;gap:6px;align-items:center;font-size:14px;color:var(--mut)}
-.item{display:grid;grid-template-columns:150px 1fr;gap:16px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:14px}
-@media(max-width:600px){.item{grid-template-columns:96px 1fr}}
-.item img{width:100%;border-radius:8px;object-fit:cover;aspect-ratio:3/4;background:var(--chip)}
-.fin{font:400 20px/1.3 Georgia,serif;margin:10px 0 2px}
-.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
-.chip{background:var(--chip);border:0;color:var(--ink);padding:5px 11px;font-size:13px;border-radius:999px}
-.tag{font-size:12px;color:var(--mut)}
-.err{color:#b3402f;font-size:13px;margin-top:6px}
-.ctr{display:grid;grid-template-columns:1fr 150px;gap:10px;margin-top:8px}
-@media(max-width:600px){.ctr{grid-template-columns:1fr}}
-</style></head><body><div class="w">
-<h1>BASH NAMER</h1>
-<p class="sub">Drop in this week's product photos. Get names that sound like Bash.</p>
-<div class="panel"><label>Anthropic API key (saved only in this browser)</label><input type="password" id="key" placeholder="sk-ant-..." autocomplete="off" style="margin-bottom:14px">
- <div class="row">
-  <div><label>Collection / vibe this week</label><input type="text" id="vibe" placeholder="e.g. soft autumn neutrals, quiet luxury, café-hopping"></div>
-  <div><label>Name style</label><select id="style"><option value="mix">Mix of both</option><option value="invented">Invented name (Zolini, Kova)</option><option value="phrase">Evocative phrase (With Faith)</option></select></div>
- </div>
- <div class="drop" id="drop">Tap or drag product photos here<input type="file" id="file" accept="image/*" multiple hidden></div>
- <div class="bar">
-  <button id="all" class="g" hidden>Generate all</button>
-  <button id="copyall" class="g" hidden>Copy all names</button>
-  <label class="chk" style="margin:0;text-transform:none;letter-spacing:0"><input type="checkbox" id="newp"> add “NEW:” prefix</label>
-  <span class="tag" id="status"></span>
- </div>
-</div>
-<div id="list"></div>
-</div>
+:root{--ink:#292621;--muted:#777168;--line:#e8e2d9;--paper:#fbf9f6;--white:#fff;--accent:#8b735e;--accent-dark:#695442;--soft:#f1ebe4;--green:#55745d}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+button,input,select,textarea{font:inherit}button{cursor:pointer}
+.topbar{border-bottom:1px solid var(--line);background:#fff;padding:18px 5vw;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.brand{font-family:Georgia,serif;letter-spacing:.18em;font-size:20px}.brand small{display:block;font-family:inherit;font-size:9px;letter-spacing:.24em;color:var(--muted);margin-top:4px}
+.status{font-size:12px;color:var(--muted);border:1px solid var(--line);padding:8px 11px;border-radius:999px}
+main{max-width:1200px;margin:0 auto;padding:34px 24px 70px}.eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);font-weight:700}
+h1{font-family:Georgia,serif;font-size:clamp(32px,5vw,48px);font-weight:400;letter-spacing:-.035em;margin:10px 0}
+.intro{color:var(--muted);max-width:650px;line-height:1.65;font-size:14px}
+.panel{background:#fff;border:1px solid var(--line);border-radius:18px;padding:22px;margin-top:25px}
+.panel-head{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-bottom:17px}
+h2{font-family:Georgia,serif;font-size:23px;font-weight:400;margin:0}
+.small{font-size:12px;color:var(--muted);line-height:1.5}
+.upload{border:1.5px dashed #cfc3b5;background:#fcfaf7;border-radius:14px;padding:27px 18px;text-align:center;display:block;transition:.2s}
+.upload:hover{border-color:var(--accent);background:#f8f3ed}.upload strong{display:block;margin:9px 0 5px;font-size:14px}.upload span{font-size:12px;color:var(--muted)}
+.upload input{display:none}.upload-icon{font-size:24px;color:var(--accent)}
+.settings{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;margin-top:19px}
+.field{display:flex;flex-direction:column;gap:7px}.field label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700}
+.field input,.field select,.field textarea{width:100%;border:1px solid var(--line);border-radius:9px;padding:11px 12px;background:#fff;color:var(--ink);outline:none}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent)}
+.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:18px}
+.btn{border:1px solid var(--line);border-radius:999px;padding:11px 16px;background:#fff;color:var(--ink);font-size:12px;font-weight:650}
+.btn.primary{background:var(--ink);color:#fff;border-color:var(--ink)}.btn.primary:hover{background:#484139}.btn.soft{background:var(--soft);border-color:var(--soft)}.btn:disabled{opacity:.45;cursor:not-allowed}
+.toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.products{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px;margin-top:18px}
+.card{background:#fff;border:1px solid var(--line);border-radius:15px;overflow:hidden;min-width:0}
+.card-top{display:grid;grid-template-columns:118px 1fr;min-height:145px}
+.photo{background:#f5f1ec;display:flex;align-items:center;justify-content:center;overflow:hidden;min-height:145px;color:#b2a69a;font-size:12px}
+.photo img{width:100%;height:100%;min-height:145px;object-fit:cover}
+.card-meta{padding:15px;min-width:0}.product-count{font-size:10px;text-transform:uppercase;letter-spacing:.13em;color:var(--accent);font-weight:700}
+.card-title{font-family:Georgia,serif;font-size:19px;font-weight:400;margin:7px 0 5px;line-height:1.2;overflow-wrap:anywhere}
+.card-sub{font-size:11px;color:var(--muted)}
+.card-body{padding:15px;border-top:1px solid var(--line)}
+.card-fields{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.card-fields .field label{font-size:10px}.card-fields .field input,.card-fields .field select{padding:9px 10px;font-size:12px}
+.name-label{font-size:10px;text-transform:uppercase;letter-spacing:.12em;font-weight:700;color:var(--muted);margin:16px 0 7px}
+.generated{width:100%;border:1px solid #d9cbbb;background:#fcfaf7;border-radius:10px;padding:12px;font-size:13px;line-height:1.5;min-height:70px;resize:vertical}
+.card-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}.card-actions .btn{padding:9px 12px;font-size:11px}
+.empty{padding:34px 20px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:14px;margin-top:18px;line-height:1.7}
+.note{margin-top:18px;padding:13px 15px;background:#f4f0eb;border-radius:10px;font-size:12px;line-height:1.6;color:#6d6257}
+.footer{margin-top:25px;text-align:center;color:var(--muted);font-size:11px}
+@media(max-width:760px){main{padding:25px 14px 50px}.panel{padding:16px}.settings{grid-template-columns:repeat(2,minmax(0,1fr))}.products{grid-template-columns:1fr}.card-top{grid-template-columns:105px 1fr}.topbar{padding:15px 18px}.status{font-size:10px}}
+@media(max-width:380px){.settings,.card-fields{grid-template-columns:1fr}.card-top{grid-template-columns:90px 1fr}}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">BASH<small>PRODUCT NAMING STUDIO</small></div>
+  <div class="status">LOCAL NAMING MODE · NO API</div>
+</header>
+<main>
+  <div class="eyebrow">Your weekly product workflow</div>
+  <h1>Find the name that<br>feels like Bash.</h1>
+  <p class="intro">Upload your new arrivals, add a few garment details, and generate chic, concise product names. This first version uses a built-in naming library, so it runs without an AI API. You can shuffle, edit, and export your final list.</p>
+
+  <section class="panel">
+    <div class="panel-head"><h2>01 / Set your naming mood</h2><span class="small">Applied to every new product</span></div>
+    <label class="upload" for="fileInput">
+      <div class="upload-icon">＋</div>
+      <strong>Drop product photos here or browse files</strong>
+      <span>Upload multiple JPG, PNG or WEBP photos at once</span>
+      <input id="fileInput" type="file" accept="image/*" multiple>
+    </label>
+    <div class="settings">
+      <div class="field"><label for="mood">Naming style</label><select id="mood"><option value="chic">Chic & classy</option><option value="cool">Cool girl & contemporary</option><option value="romantic">Romantic & dainty</option><option value="minimal">Minimal & modern</option></select></div>
+      <div class="field"><label for="prefix">Listing prefix</label><select id="prefix"><option value="NEW: ">NEW:</option><option value="">No prefix</option></select></div>
+      <div class="field"><label for="length">Name length</label><select id="length"><option value="balanced">Concise but descriptive</option><option value="short">Short & clean</option><option value="detailed">A little more detail</option></select></div>
+      <div class="field"><label for="collection">Collection / vibe (optional)</label><input id="collection" placeholder="e.g. City Cosmopolitan"></div>
+    </div>
+    <div class="actions"><button class="btn primary" id="generateAll">Generate names for all</button><button class="btn" id="clearAll">Clear all products</button></div>
+    <div class="note"><strong>Good to know:</strong> this no-API version does not interpret the photos automatically. It uses your selected garment type, colour and details to build names. Please confirm the technical details before publishing.</div>
+  </section>
+
+  <section class="panel">
+    <div class="toolbar"><div><h2>02 / Your new arrivals</h2><div class="small" id="productCount" style="margin-top:6px">No products uploaded yet</div></div><div class="actions" style="margin:0"><button class="btn soft" id="exportCsv" disabled>Export CSV ↓</button></div></div>
+    <div id="products" class="products"></div>
+    <div id="empty" class="empty">Your product cards will appear here.<br>Start by uploading your weekly product photos above.</div>
+  </section>
+  <div class="footer">Made for Bash · Names and preferences stay in this browser session. Export your list before closing the page.</div>
+</main>
 <script>
-const EXISTING="Celeste, Cam, Jeanna, Lucy, Zolini, Claire, Kova, Feraya, Sorissa, Olia, Killy, Lioris, Everlia, Calista, Thaleessa, Phaelis, Baby Feraya";
-const REF=["Celeste Set by Bash","Cam Faux 2 Layer Mesh Lace Camisole Top","Jeanna V Neck Mid Sleeve Top","Zolini Lace Camisole Top","Kova Queen Anne Neckline Long Sleeve Top","Feraya Off Shoulder Bodycon Maxi Dress","Olia Peplum Pleated Top","Killy Mini Skort","Lioris Boat Neck Tie Top","With Faith Satin Skirt","Everlia Ruched Maxi Skirt","Love Escape Crossback Textured Maxi Dress","Island Resort Collar Button Down Linen Top","Phaelis Tube Layered Maxi Dress","Calista Polkadot Midi Skirt"];
-let items=[],sample=null,used=[];
-try{used=JSON.parse(localStorage.getItem("bn_used")||"[]")}catch(e){}
-const $=s=>document.querySelector(s);
-function esc(s){const d=document.createElement("div");d.textContent=s;return d.innerHTML}
-function final(it){const b=(it.base||"").trim();if(!b)return"";const c=(it.colour||"").trim();return($("#newp").checked?"NEW: ":"")+b+(c?" in "+c:"")}
-function toBlob(file){return new Promise((res,rej)=>{const im=new Image(),u=URL.createObjectURL(file);im.onload=()=>{const m=800,s=Math.min(1,m/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=im.width*s;c.height=im.height*s;c.getContext("2d").drawImage(im,0,0,c.width,c.height);c.toBlob(b=>res({blob:b,url:c.toDataURL("image/jpeg",.6)}),"image/jpeg",.85);URL.revokeObjectURL(u)};im.onerror=rej;im.src=u})}
-async function addFiles(fs){for(const f of fs){if(!f.type.startsWith("image/"))continue;try{const r=await toBlob(f);items.push({id:Math.random().toString(36).slice(2),blob:r.blob,url:r.url,pool:[],i:0,base:"",colour:"",busy:false,err:""})}catch(e){}}render()}
-async function gen(it,more){
- it.busy=true;it.err="";render();
- const style={mix:"a mix: some invented feminine names, some evocative short phrases",invented:"an invented, soft, feminine, pronounceable one-word name (like Zolini, Kova, Feraya, Lioris, Everlia)",phrase:"a short evocative phrase of 2 words (like With Faith, Love Escape, Island Resort)"}[$("#style").value];
- const avoid=[...it.pool,...used].slice(-60).join(", ");
- const p=`You name women's fashion products for Bash, a Malaysian online fashion brand. Look at the photo and return ONLY JSON, no markdown:
-{"colour":"simple colour name as Bash writes it, e.g. Cream, Khaki, Pink, Blue Stripes, Teal Green","options":[8 strings]}
-Each option = a brand name + short technical description + garment type, WITHOUT the colour. Pattern: [Name] [1-3 technical terms] [Garment type].
-Reference listings from Bash: ${REF.join(" | ")}.
-Brand-name style: ${style}. Chic, classy, a little unexpected, never cheesy or generic. Vibe should match the clothes.
-Technical terms must be accurate to the photo (e.g. ruffle, A-line, midi, pleated, ribbed, button down, drawstring, eyelet, ruched, puff sleeve, wide leg, high neck, cropped, lace trim). Max 1-3 terms, keep total under 7 words. If it's a two-piece, end with "Set".
-Week's collection/vibe: ${$("#vibe").value||"not specified, judge from the photo"}.
-Never reuse these existing or already used names: ${EXISTING}, ${avoid}. All 8 brand names must differ from each other.`;
- try{
-  const key=($("#key").value||"").trim();
-  if(!key){it.busy=false;it.err="Paste your Anthropic API key at the top first.";render();return}
-  const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"content-type":"application/json","x-api-key":key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-5-5",max_tokens:1000,messages:[{role:"user",content:[{type:"image",source:{type:"base64",media_type:"image/jpeg",data:it.url.split(",")[1]}},{type:"text",text:p}]}]})});
-  const dj=await res.json();if(!res.ok)throw new Error((dj.error&&dj.error.message)||"API error");
-  const r={text:dj.content.map(c=>c.text||"").join("")};
-  const m=r.text.match(/\{[\s\S]*\}/);const j=JSON.parse(m[0]);
-  if(!it.colour)it.colour=j.colour||"";
-  const opts=(j.options||[]).filter(x=>typeof x==="string"&&x.trim());
-  if(more){it.pool=it.pool.concat(opts);it.i=it.pool.length-opts.length}else{it.pool=opts;it.i=0}
-  it.base=it.pool[it.i]||"";
- }catch(e){it.err="Couldn't generate a name: "+(e&&e.message||"try again")}
- it.busy=false;render()}
-function shuffle(it){if(it.i+1<it.pool.length){it.i++;it.base=it.pool[it.i];render()}else gen(it,true)}
-function copy(t,btn){try{navigator.clipboard.writeText(t).then(()=>{if(btn){btn.textContent="Copied";setTimeout(()=>btn.textContent="Copy",1200)}})}catch(e){}
- const nm=t.replace(/^NEW: /,"").split(" ")[0];if(nm&&!used.includes(nm)){used.push(nm);try{localStorage.setItem("bn_used",JSON.stringify(used.slice(-200)))}catch(e){}}}
+const $=id=>document.getElementById(id);
+let products=[];
+const names={
+ chic:["Elodie","Margot","Colette","Solene","Camille","Vivienne","Celine","Odette","Estelle","Noelle","Simone","Juliette","Amelie","Claudette","Marlowe","Thea","Louise","Florence","Delphine","Alma","Sylvie","Anais","Rosalie","Eloise","Celeste","Inez","Mireille","Clara","Elise","Isabelle"],
+ cool:["Sloane","Blair","Remy","Drew","Cleo","Quinn","Romy","Milan","Stevie","Lennox","Arden","Frankie","Noa","Billie","Reese","Scout","Indie","Rowan","Shiloh","Jules","Marlow","Tate","Cameron","Kit","Rory","Wren"],
+ romantic:["Rosie","Lilia","Daisy","Belle","Flora","Lottie","Mabel","Poppy","Maisie","Cecily","Fleur","Millie","Primrose","Annie","Daphne","Pearl","Ivy","Elsie","Lyla","Winnie","Birdie","Honey","Clementine","Etta","Faye","Lulu"],
+ minimal:["Avery","Sage","Mira","Thea","Lena","Nora","Eden","Aria","Mina","Rhea","Ayla","Alba","Cora","Lumi","Auden","Mika","Talia","Nina","Lola","Mila","Ari","Elle","Remi","Leah","Esme"]
+};
+const types={
+ "Top":["Top","Blouse","Shirt"],"Blouse":["Blouse","Top"],"T-shirt":["Tee","T-shirt"],"Knit top":["Knit Top","Ribbed Knit Top"],"Cardigan":["Cardigan","Knit Cardigan"],"Dress":["Dress","Midi Dress"],"Mini dress":["Mini Dress","Dress"],"Midi dress":["Midi Dress","Dress"],"Maxi dress":["Maxi Dress","Dress"],"Pants":["Pants","Trousers"],"Wide-leg pants":["Wide-Leg Pants","Wide-Leg Trousers"],"Skirt":["Skirt"],"Mini skirt":["Mini Skirt"],"Midi skirt":["Midi Skirt"],"Shorts":["Shorts"],"Set / co-ord":["Set","Co-ord Set"],"Knit set":["Knit Set","Knit Co-ord Set"],"Outerwear":["Jacket","Outerwear"],"Other":["Piece","Style"]
+};
+const featureMap={
+"Ruffles":"Ruffle","Pleats":"Pleated","Eyelet":"Eyelet","Ribbon":"Ribbon","Lace":"Lace-Trim","Bow":"Bow-Detail","Button-down":"Button-Down","Drawstring":"Drawstring","Smocked":"Smocked","Embroidery":"Embroidered","Puff sleeves":"Puff-Sleeve","Tie-front":"Tie-Front","Wrap":"Wrap","Ruched":"Ruched","Ribbed":"Ribbed","Knitted":"Knit","Crochet":"Crochet","Stripes":"Striped","Linen":"Linen","Denim":"Denim","Cotton":"Cotton","Satin":"Satin","A-line":"A-Line","Bias-cut":"Bias-Cut","Square neck":"Square-Neck","High neck":"High-Neck","V-neck":"V-Neck","Off-shoulder":"Off-Shoulder","Wide-leg":"Wide-Leg"};
+const colors=["Black","White","Cream","Beige","Khaki","Brown","Taupe","Grey","Navy","Blue","Pink","Blush","Red","Burgundy","Green","Sage","Yellow","Lilac","Purple","Orange","Multi"];
+const featureOptions=Object.keys(featureMap);
+function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+function options(arr,selected){return arr.map(x=>`<option ${x===selected?"selected":""} value="${esc(x)}">${esc(x)}</option>`).join("");}
+function newProduct(file){
+ const base=file.name.replace(/\.[^.]+$/,"").replace(/[_-]+/g," ").replace(/\s+/g," ").trim();
+ return {id:crypto.randomUUID?crypto.randomUUID():String(Date.now()+Math.random()),file,name:base, type:"Top",color:"",size:"",features:[],silhouette:"",length:"",custom:"",generated:"",seed:Math.floor(Math.random()*1000)};
+}
+$("fileInput").addEventListener("change",e=>{
+ const files=[...e.target.files].filter(f=>f.type.startsWith("image/"));
+ files.forEach(file=>products.push(newProduct(file)));
+ render();e.target.value="";
+});
+function chosenName(p){
+ const list=names[$("mood").value]||names.chic;
+ const idx=(p.seed+products.indexOf(p)*3)%list.length;
+ return list[(idx+list.length)%list.length];
+}
+function compose(p,advance=false){
+ if(advance)p.seed+=1;
+ const first=chosenName(p), mood=$("mood").value, len=$("length").value;
+ let type=p.type||"Top";
+ let typeText=(types[type]||[type])[((p.seed%((types[type]||[type]).length))+(types[type]||[type]).length)%((types[type]||[type]).length)];
+ const selected=p.features.map(x=>featureMap[x]).filter(Boolean);
+ let descriptors=[];
+ // Preserve user-selected technical details and keep names readable.
+ if(selected.length) descriptors.push(selected[(p.seed%selected.length+selected.length)%selected.length]);
+ if(p.silhouette && !selected.includes(featureMap[p.silhouette])) descriptors.push(featureMap[p.silhouette]||p.silhouette);
+ if(p.length && len!=="short") descriptors.push(p.length);
+ if(p.custom.trim()) descriptors.push(p.custom.trim());
+ descriptors=[...new Set(descriptors)].filter(Boolean);
+ if(len==="short")descriptors=descriptors.slice(0,1);
+ if(len==="balanced")descriptors=descriptors.slice(0,2);
+ if(len==="detailed")descriptors=descriptors.slice(0,3);
+ // Put fabric/shape modifiers before the garment noun, with a few readable exceptions.
+ let name=first+" "+[...descriptors,typeText].filter(Boolean).join(" ");
+ if(p.color)name+=" in "+p.color;
+ if(p.size)name+=" ("+p.size+")";
+ return ($("prefix").value||"")+name;
+}
+function updateCount(){
+ $("productCount").textContent=products.length?`${products.length} product${products.length===1?"":"s"} · edit details and names before exporting`:"No products uploaded yet";
+ $("exportCsv").disabled=!products.length;
+ $("empty").style.display=products.length?"none":"block";
+}
 function render(){
- const L=$("#list");L.innerHTML="";
- $("#all").hidden=!items.length;$("#copyall").hidden=!items.some(i=>i.base);
- items.forEach(it=>{
-  const d=document.createElement("div");d.className="item";
-  d.innerHTML=`<img src="${it.url}" alt=""><div><div class="ctr"><div><label>Name</label><input type="text" class="nm" value="${esc(it.base).replace(/"/g,"&quot;")}" placeholder="Not named yet"></div><div><label>Colour</label><input type="text" class="cl" value="${esc(it.colour).replace(/"/g,"&quot;")}"></div></div>
-  <div class="fin">${esc(final(it))||"&nbsp;"}</div>
-  <div class="bar" style="margin-top:10px"><button class="go" ${it.busy?"disabled":""}>${it.busy?"Thinking…":it.base?"Shuffle":"Generate"}</button><button class="g cp" ${it.base?"":"disabled"}>Copy</button><button class="g rm">Remove</button></div>
-  ${it.err?`<div class="err">${esc(it.err)}</div>`:""}
-  <div class="chips"></div></div>`;
-  const ch=d.querySelector(".chips");
-  it.pool.forEach((n,k)=>{if(k===it.i)return;const b=document.createElement("button");b.className="chip";b.textContent=n;b.onclick=()=>{it.i=k;it.base=n;render()};ch.appendChild(b)});
-  const nm=d.querySelector(".nm"),cl=d.querySelector(".cl"),fin=d.querySelector(".fin");
-  nm.oninput=()=>{it.base=nm.value;fin.textContent=final(it)||"\u00a0"};
-  cl.oninput=()=>{it.colour=cl.value;fin.textContent=final(it)||"\u00a0"};
-  d.querySelector(".go").onclick=()=>it.base?shuffle(it):gen(it,false);
-  d.querySelector(".cp").onclick=e=>copy(final(it),e.target);
-  d.querySelector(".rm").onclick=()=>{items=items.filter(x=>x!==it);render()};
-  L.appendChild(d)})}
-$("#newp").onchange=render;
-const drop=$("#drop"),file=$("#file");
-drop.onclick=()=>file.click();file.onchange=()=>{addFiles(file.files);file.value=""};
-drop.ondragover=e=>{e.preventDefault();drop.classList.add("on")};drop.ondragleave=()=>drop.classList.remove("on");
-drop.ondrop=e=>{e.preventDefault();drop.classList.remove("on");addFiles(e.dataTransfer.files)};
-$("#all").onclick=async()=>{const b=$("#all");b.disabled=true;for(const it of items.filter(x=>!x.base)){$("#status").textContent="Naming…";await gen(it,false)}$("#status").textContent="";b.disabled=false};
-$("#copyall").onclick=e=>{const t=items.filter(i=>i.base).map(final).join("\n");copy(t,null);e.target.textContent="Copied";setTimeout(()=>e.target.textContent="Copy all names",1200)};
-const K=$("#key");try{K.value=localStorage.getItem("bn_key")||""}catch(e){}K.oninput=()=>{try{localStorage.setItem("bn_key",K.value.trim())}catch(e){}};
-</script></body></html>
+ const wrap=$("products");wrap.innerHTML="";
+ products.forEach((p,i)=>{
+  const card=document.createElement("article");card.className="card";
+  const url=URL.createObjectURL(p.file);
+  card.innerHTML=`
+   <div class="card-top"><div class="photo"><img src="${url}" alt="${esc(p.file.name)}"></div><div class="card-meta"><div class="product-count">PRODUCT ${String(i+1).padStart(2,"0")}</div><div class="card-title">${esc(p.name||p.file.name)}</div><div class="card-sub">${esc(p.file.name)}</div><div class="card-actions"><button class="btn" data-act="rename-title" data-id="${p.id}">Edit label</button><button class="btn" data-act="remove" data-id="${p.id}">Remove</button></div></div></div>
+   <div class="card-body">
+    <div class="card-fields">
+     <div class="field"><label>Garment type</label><select data-field="type" data-id="${p.id}">${options(Object.keys(types),p.type)}</select></div>
+     <div class="field"><label>Colour</label><select data-field="color" data-id="${p.id}"><option value="">Select colour</option>${options(colors,p.color)}</select></div>
+     <div class="field"><label>Size (optional)</label><input data-field="size" data-id="${p.id}" value="${esc(p.size)}" placeholder="e.g. S, M or L"></div>
+     <div class="field"><label>Length / silhouette</label><select data-field="length" data-id="${p.id}"><option value="">None</option>${options(["Mini","Midi","Maxi","A-Line","Wide-Leg","Fitted","Relaxed","Cropped","Straight-Leg","Flared"],p.length)}</select></div>
+     <div class="field" style="grid-column:1/-1"><label>Standout details / fabric</label><select multiple data-field="features" data-id="${p.id}" style="min-height:84px">${featureOptions.map(x=>`<option ${p.features.includes(x)?"selected":""} value="${esc(x)}">${esc(x)}</option>`).join("")}</select><span class="small">Tip: on a computer, hold Ctrl (Windows) or Command (Mac) to select multiple details.</span></div>
+     <div class="field" style="grid-column:1/-1"><label>Extra descriptor (optional)</label><input data-field="custom" data-id="${p.id}" value="${esc(p.custom)}" placeholder="e.g. Textured, scallop-trim, linen blend"></div>
+    </div>
+    <div class="name-label">Suggested product name · editable</div>
+    <textarea class="generated" data-field="generated" data-id="${p.id}" placeholder="Click Generate names for all">${esc(p.generated)}</textarea>
+    <div class="card-actions"><button class="btn primary" data-act="shuffle" data-id="${p.id}">↻ Shuffle name</button><button class="btn soft" data-act="generate" data-id="${p.id}">Generate from details</button><button class="btn" data-act="copy" data-id="${p.id}">Copy name</button></div>
+   </div>`;
+  wrap.appendChild(card);
+ });
+ updateCount();
+}
+$("products").addEventListener("change",e=>{
+ const el=e.target;if(!el.dataset.field)return;
+ const p=products.find(x=>x.id===el.dataset.id);if(!p)return;
+ if(el.dataset.field==="features")p.features=[...el.selectedOptions].map(o=>o.value);
+ else p[el.dataset.field]=el.value;
+ if(["type","color","size","length","features","custom"].includes(el.dataset.field)&&p.generated)p.generated=compose(p);
+ if(el.dataset.field!=="generated")renderPreservingFocus(el,p);
+});
+function renderPreservingFocus(el,p){
+ // Update the generated name in-place so editing card fields doesn't jump the page.
+ const card=el.closest(".card");
+ const textarea=card?.querySelector('[data-field="generated"]');
+ if(textarea && p.generated)textarea.value=p.generated;
+}
+$("products").addEventListener("input",e=>{
+ const el=e.target;if(el.dataset.field==="generated"||el.dataset.field==="size"||el.dataset.field==="custom"){
+ const p=products.find(x=>x.id===el.dataset.id);if(p)p[el.dataset.field]=el.value;
+ }
+});
+$("products").addEventListener("click",async e=>{
+ const b=e.target.closest("button[data-act]");if(!b)return;
+ const p=products.find(x=>x.id===b.dataset.id);if(!p)return;
+ if(b.dataset.act==="remove"){products=products.filter(x=>x.id!==p.id);render();return;}
+ if(b.dataset.act==="rename-title"){const n=prompt("Internal product label / filename:",p.name);if(n!==null){p.name=n;render();}return;}
+ if(b.dataset.act==="shuffle"||b.dataset.act==="generate"){p.generated=compose(p,b.dataset.act==="shuffle");render();return;}
+ if(b.dataset.act==="copy"){if(!p.generated)p.generated=compose(p);try{await navigator.clipboard.writeText(p.generated);b.textContent="Copied ✓";setTimeout(()=>b.textContent="Copy name",1200);}catch{prompt("Copy your product name:",p.generated);}return;}
+});
+$("generateAll").addEventListener("click",()=>{products.forEach(p=>p.generated=compose(p));render();});
+$("clearAll").addEventListener("click",()=>{if(products.length&&!confirm("Remove all products from this session?"))return;products=[];render();});
+["mood","prefix","length"].forEach(id=>$(id).addEventListener("change",()=>{products.forEach(p=>{if(p.generated)p.generated=compose(p)});render();}));
+$("exportCsv").addEventListener("click",()=>{
+ const rows=[["Product label","Product name","Garment type","Colour","Size","Details","Extra descriptor","Collection"]];
+ products.forEach(p=>rows.push([p.name,p.generated||compose(p),p.type,p.color,p.size,p.features.join(", "),p.custom,$("collection").value]));
+ const csv=rows.map(row=>row.map(v=>'"'+String(v??"").replace(/"/g,'""')+'"').join(",")).join("\r\n");
+ const blob=new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8;"});const url=URL.createObjectURL(blob);
+ const a=document.createElement("a");a.href=url;a.download="bash-product-names.csv";document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
+});
+</script>
+</body>
+</html>
